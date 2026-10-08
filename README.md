@@ -1,4 +1,4 @@
-# BBB Score
+# Blood–Brain Barrier Score
 
 A Python/RDKit app for the [Gupta et al. (2019) BBB Score](https://doi.org/10.1021/acs.jmedchem.9b01220).
 
