@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BBB Score · Molecular Screening</title>
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">B</span><span>BBB <strong>Score</strong></span></div><span class="local"><span></span> Local computation</span></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">MOLECULAR SCREENING</p><h1>BBB Score calculator</h1><p class="subtitle">Score molecules and generate 2D structures.</p></div><div class="method-label">Gupta et al.<br><strong>2019 method</strong></div></div>
+    <div class="workspace">
+      <section class="panel input-panel" aria-label="Molecule input">
+        <div class="panel-title"><h2>Input</h2><span class="step">01</span></div>
+        <div class="tabs" role="tablist" aria-label="Input mode"><button class="tab active" role="tab" aria-selected="true" data-mode="smiles" aria-controls="single-form">SMILES</button><button class="tab" role="tab" aria-selected="false" data-mode="local" aria-controls="single-form" hidden>Local name</button><button class="tab" role="tab" aria-selected="false" data-mode="descriptors" aria-controls="single-form">Descriptors</button><button class="tab" role="tab" aria-selected="false" data-mode="batch" aria-controls="batch-form">Batch</button></div>
+        <form id="single-form">
+          <label for="compound-id">Name / ID <span id="name-optional" class="optional">optional</span></label><input id="compound-id" placeholder="e.g. Alprazolam" maxlength="200">
+          <div id="local-fields" hidden><p class="hint">Search verified local structures.</p><div id="local-names" class="examples"></div></div>
+          <div id="smiles-fields"><label for="smiles">SMILES</label><textarea id="smiles" rows="3" spellcheck="false" placeholder="Paste a SMILES string" maxlength="16000"></textarea><div id="examples" class="examples"></div><p id="example-note" class="hint"></p></div>
+          <div id="descriptor-fields" hidden><div class="fields-grid">
+            <div><label for="AroR">Aromatic rings</label><input id="AroR" type="number" min="0" step="1"></div>
+            <div><label for="HA">Heavy atoms</label><input id="HA" type="number" min="1" step="1"></div>
+            <div><label for="MW">MW (g/mol)</label><input id="MW" type="number" min="0.001" step="any"></div>
+            <div><label for="TPSA">TPSA (Å²)</label><input id="TPSA" type="number" min="0" step="any"></div>
+            <div><label for="HBA">H-bond acceptors</label><input id="HBA" type="number" min="0" step="1"></div>
+            <div><label for="HBD">H-bond donors</label><input id="HBD" type="number" min="0" step="1"></div>
+          </div><p class="hint">Use all six descriptors from the same source.</p></div>
+          <div class="pka-block"><label for="pka">pKa <span class="optional">required for scoring</span></label><input id="pka" type="number" step="any" placeholder="Selected pKa"><label class="check"><input type="checkbox" id="neutral"><span>Neutral convention (pKa = 8.81)</span></label><p class="hint">Only for molecules without relevant ionizable sites. pKa is not predicted.</p></div>
+          <button id="calculate" class="primary" type="submit">Calculate <span aria-hidden="true">↗</span></button>
+        </form>
+        <form id="batch-form" hidden>
+          <label class="upload" for="file"><span class="upload-icon" aria-hidden="true">↑</span><strong>Choose CSV or XLSX</strong><span>Up to 10,000 rows · 16 MB</span><input type="file" id="file" accept=".csv,.xlsx"></label><p id="file-name" class="hint">No file selected</p>
+          <p class="hint">Supply SMILES + pKa, or a complete set of descriptors.</p>
+          <p id="library-status" class="hint" hidden></p>
+          <a class="template" href="/template.csv" download="bbb_template.csv">↓ Example CSV</a><button id="batch-calculate" class="primary" type="submit">Calculate batch <span aria-hidden="true">↗</span></button>
+        </form>
+        <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+        <details class="method"><summary>Method</summary><p>BBB Score = P(AroR) + P(HA) + 1.5 × P(MWHBN) + 2 × P(TPSA) + 0.5 × P(pKa). MWHBN = (HBA + HBD) / √MW.</p><p>Select the highest basic pKa ≥ 5; otherwise use the lowest acidic pKa ≤ 9. The neutral convention is 8.81.</p><p>Descriptors alone cannot identify a unique structure. Supply SMILES for 2D depiction.</p><a href="https://doi.org/10.1021/acs.jmedchem.9b01220" target="_blank" rel="noreferrer">Paper ↗</a></details>
+      </section>
+      <section class="output-panel" aria-label="Results">
+        <div class="panel score-panel"><div class="result-heading"><div><p class="eyebrow">BBB SCORE</p><h2 id="result-name">Ready</h2></div><span id="result-state" class="badge">Awaiting input</span></div><div class="score-line"><strong id="score-value">—</strong><span class="score-scale">Published score<br>Typical range 0–6</span></div><p id="score-note" class="score-note" hidden></p><p class="research-note">Screening score; not a probability.</p></div>
+        <div class="panel structure-panel"><div class="panel-title"><div><h2>2D structure</h2><p id="formula" class="hint">Generated from SMILES</p></div><div class="actions"><button id="download-svg" disabled>SVG ↓</button><button id="download-mol" disabled>MOL ↓</button></div></div><div id="structure-view" class="structure-view"><p>Enter SMILES to draw a molecule.</p></div><p id="structure-source" class="hint" hidden></p><details id="canonical-detail" hidden><summary>Canonical SMILES</summary><code id="canonical"></code></details></div>
+        <div id="descriptor-panel" class="panel" hidden><div class="panel-title"><h2>Descriptors</h2><span id="descriptor-source" class="hint"></span></div><div id="descriptor-values" class="descriptor-values"></div><div class="contribution-header"><span>Score contributions</span><span>P(x) × weight</span></div><div id="contributions"></div><p id="warnings" class="hint warning"></p><button id="export-single" class="text-button" disabled>↓ Export CSV</button></div>
+      </section>
+    </div>
+    <section id="batch-results" class="panel batch-results" hidden><div class="panel-title"><div><h2>Batch results</h2><p id="batch-summary" class="hint"></p></div><button id="export-batch" class="secondary">↓ Export CSV</button></div><div class="table-controls"><input id="search" type="search" placeholder="Search name or ID" aria-label="Search batch results"><select id="structure-filter" aria-label="Filter by structure"><option value="all">All rows</option><option value="available">With structure</option><option value="missing">Without structure</option></select><span class="hint">Select a row for details.</span></div><div class="table-scroll"><table><thead><tr><th>Row</th><th>Name / ID</th><th>BBB Score</th><th>Input score</th><th>2D</th><th>Status</th></tr></thead><tbody id="batch-body"></tbody></table></div><div class="pagination"><button id="prev-page">← Previous</button><span id="page-info" class="hint"></span><button id="next-page">Next →</button></div></section>
+    <footer><span>Gupta et al. · J. Med. Chem. (2019)</span></footer>
+  </main>
+</body>
+</html>

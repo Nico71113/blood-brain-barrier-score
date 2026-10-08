@@ -1,0 +1,4 @@
+compound_id,SMILES,AroR,HA,MW,HBA,HBD,TPSA,pKa,BBB SCORE
+alprazolam,CC1=NN=C2CN=C(C3=CC=CC=C3)C3=C(C=CC(Cl)=C3)N12,,,,,,,5.01,
+public_calculator_example,,3,28,368.52,2,0,6.48,8.1,5.0403
+caffeine_missing_pka,Cn1c(=O)c2c(ncn2C)n(C)c1=O,,,,,,,,

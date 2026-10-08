@@ -1,0 +1,15 @@
+.venv/
+.local/
+__pycache__/
+*.pyc
+.DS_Store
+references/
+data/
+*.xlsx
+*.docx
+*.sdf
+*.mol
+*.zip
+node_modules/
+*.csv
+!web/template.csv
